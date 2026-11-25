@@ -4,6 +4,7 @@ import com.carmotors.sgt.model.RegistroConsumoRepuesto;
 import com.carmotors.sgt.model.RegistroMantenimientoPreventivo;
 import com.carmotors.sgt.model.RegistroProductividadTecnico;
 import com.carmotors.sgt.model.RegistroServicioSolicitado;
+import com.carmotors.sgt.model.Servicio;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,4 +49,23 @@ public interface ReporteDAO {
      * @return registros planos ordenados por vehículo, tipo de servicio y fecha de entrega descendente
      */
     List<RegistroMantenimientoPreventivo> listarMantenimientosPreventivos();
+
+    /**
+     * Consulta y devuelve la lista de todos los servicios que cuentan con registro
+     * de fecha_entrega y fecha_recepcion en el sistema, junto a su tipo de mantenimiento.
+     *
+     * @return lista de servicios completados
+     */
+    default List<Servicio> listarServiciosConFechaEntrega() {
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * Alias de compatibilidad para listar todos los servicios completados.
+     *
+     * @return lista de servicios completados
+     */
+    default List<Servicio> listarServiciosCompletados() {
+        return listarServiciosConFechaEntrega();
+    }
 }
