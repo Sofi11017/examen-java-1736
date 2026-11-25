@@ -12,10 +12,14 @@ import com.carmotors.sgt.model.ReporteConsumoRepuestos;
 import com.carmotors.sgt.model.ReporteConsumoRepuestos.DetalleConsumo;
 import com.carmotors.sgt.model.ReporteConsumoRepuestos.ResumenConsumo;
 import com.carmotors.sgt.model.ReporteProductividadTecnicos;
+import com.carmotors.sgt.model.Servicio;
 import com.carmotors.sgt.model.Tecnico;
+import com.carmotors.sgt.model.TiempoPromedioReparacion;
 import com.carmotors.sgt.dao.ReporteDAO;
+import com.carmotors.sgt.dao.ServicioDAO;
 import com.carmotors.sgt.dao.TecnicoDAO;
 import com.carmotors.sgt.dao.impl.ReporteDAOImpl;
+import com.carmotors.sgt.dao.impl.ServicioDAOImpl;
 import com.carmotors.sgt.dao.impl.TecnicoDAOImpl;
 import com.carmotors.sgt.service.state.EstadoCompletado;
 import com.carmotors.sgt.service.state.EstadoEntregado;
@@ -23,9 +27,11 @@ import com.carmotors.sgt.service.state.EstadoFacturado;
 import com.carmotors.sgt.util.InputValidator;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +56,7 @@ public class ReporteService {
 
     private final ReporteDAO reporteDAO;
     private final TecnicoDAO tecnicoDAO;
+    private final ServicioDAO servicioDAO;
 
     public ReporteService() {
         this(new ReporteDAOImpl(), new TecnicoDAOImpl());
@@ -64,6 +71,10 @@ public class ReporteService {
      * productividad (RF-26) a los técnicos activos sin trabajo en el periodo.
      */
     public ReporteService(ReporteDAO reporteDAO, TecnicoDAO tecnicoDAO) {
+        this(reporteDAO, tecnicoDAO, reporteDAO instanceof ServicioDAO ? (ServicioDAO) reporteDAO : new ServicioDAOImpl());
+    }
+
+    public ReporteService(ReporteDAO reporteDAO, TecnicoDAO tecnicoDAO, ServicioDAO servicioDAO) {
         if (reporteDAO == null) {
             throw new ValidacionException("El DAO de reportes es obligatorio.");
         }
@@ -72,6 +83,7 @@ public class ReporteService {
         }
         this.reporteDAO = reporteDAO;
         this.tecnicoDAO = tecnicoDAO;
+        this.servicioDAO = servicioDAO != null ? servicioDAO : (reporteDAO instanceof ServicioDAO ? (ServicioDAO) reporteDAO : new ServicioDAOImpl());
     }
 
     /**
@@ -548,5 +560,70 @@ public class ReporteService {
             }
             return Integer.compare(a.getServicioTipoId(), b.getServicioTipoId());
         };
+    }
+
+    /**
+     * Calcula los tiempos promedio de finalización de servicios completados agrupados por tipo
+     * de mantenimiento ("Preventivo" y "Correctivo").
+     *
+     * @return lista de {@link TiempoPromedioReparacion} con los promedios calculados
+     */
+    public List<TiempoPromedioReparacion> calcularTiemposPromedioReparacion() {
+        List<Servicio> servicios = reporteDAO.listarServiciosConFechaEntrega();
+        return calcularTiemposPromedioReparacion(servicios);
+    }
+
+    /**
+     * Alias de conveniencia para {@link #calcularTiemposPromedioReparacion()}.
+     */
+    public List<TiempoPromedioReparacion> obtenerTiemposPromedioReparacion() {
+        return calcularTiemposPromedioReparacion();
+    }
+
+    /**
+     * Procesa la lista de servicios completados obtenida desde el DAO y calcula la duración de cada
+     * servicio utilizando la API {@link java.time.Duration}.
+     * A continuación, utiliza la API Stream y sus colectores ({@link Collectors#groupingBy}
+     * y el colector de promedio {@link Collectors#averagingDouble}) para procesar la lista de
+     * duraciones y obtener el promedio para cada tipo de mantenimiento.
+     *
+     * @param servicios lista de servicios completados
+     * @return lista de {@link TiempoPromedioReparacion} con los promedios obtenidos
+     */
+    public List<TiempoPromedioReparacion> calcularTiemposPromedioReparacion(List<Servicio> servicios) {
+        if (servicios == null || servicios.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Agrupación y cálculo del promedio usando java.time.Duration y Stream API con groupingBy y averagingDouble
+        Map<String, Double> promedioSegundosPorTipo = servicios.stream()
+                .filter(s -> s != null && s.getTipoMantenimiento() != null && !s.getTipoMantenimiento().isBlank())
+                .filter(s -> s.getFechaRecepcion() != null && s.getFechaEntrega() != null)
+                .filter(s -> !s.getFechaEntrega().isBefore(s.getFechaRecepcion()))
+                .collect(Collectors.groupingBy(
+                        s -> s.getTipoMantenimiento().trim(),
+                        Collectors.averagingDouble(s -> {
+                            Duration duracion = Duration.between(s.getFechaRecepcion(), s.getFechaEntrega());
+                            return (double) duracion.getSeconds();
+                        })
+                ));
+
+        List<TiempoPromedioReparacion> resultado = new ArrayList<>();
+        List<String> ordenPrioritario = List.of("Preventivo", "Correctivo");
+
+        for (String tipo : ordenPrioritario) {
+            if (promedioSegundosPorTipo.containsKey(tipo)) {
+                long segundosPromedio = Math.round(promedioSegundosPorTipo.get(tipo));
+                resultado.add(new TiempoPromedioReparacion(tipo, Duration.ofSeconds(segundosPromedio)));
+            }
+        }
+
+        promedioSegundosPorTipo.forEach((tipo, seg) -> {
+            if (!ordenPrioritario.contains(tipo)) {
+                resultado.add(new TiempoPromedioReparacion(tipo, Duration.ofSeconds(Math.round(seg))));
+            }
+        });
+
+        return resultado;
     }
 }
