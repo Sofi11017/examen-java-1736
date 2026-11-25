@@ -392,7 +392,7 @@ Proyecto desarrollado por el **Grupo 4**:
 ## Examen Final
 
 ### Examen final 1736 | Tiempos promedio de reparación
-Estudiante y grupo: Sofía | Grupo 4
+Estudiante y grupo: Sofia Salazar | Grupo #4
 Proyecto de origen: https://github.com/julio7879/Proyecto-Java-Grupo4.git
 Acceso: Reportes → Ver Tiempos Promedio de Reparación
 Clases del examen:
