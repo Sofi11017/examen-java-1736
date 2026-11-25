@@ -155,6 +155,7 @@ El punto de navegación principal reside en `ConsolaMenuView`, el cual integra l
 - Servicios más solicitados utilizando los nombres históricos congelados (*snapshots*) de cada línea de orden.
 - Productividad por técnico prorrateada según las horas trabajadas registradas (incluyendo técnicos activos con carga cero).
 - Recordatorios de mantenimiento preventivo próximos a cumplirse según el intervalo configurado en el servicio y la última entrega del vehículo.
+- Tiempos promedio de reparación: cálculo de la duración promedio de finalización de servicios entre fecha de recepción y fecha de entrega, agrupados por su naturaleza (Preventivo y Correctivo) mediante `java.time.Duration` y Stream API (`groupingBy` y colector de promedio).
 
 ---
 
@@ -385,3 +386,28 @@ Proyecto desarrollado por el **Grupo 4**:
 | **Andrés Jiménez** | [`@AlmX4`](https://github.com/AlmX4) | Desarrollador Backend |
 | **Jhorman** | [`@JopsWtD`](https://github.com/JopsWtD) | Desarrollador Backend y Arquitectura |
 | **Sofía** | [`@Sofi11017`](https://github.com/Sofi11017) | Desarrolladora Backend |
+
+---
+
+## Examen Final
+
+### Examen final 1736 | Tiempos promedio de reparación
+Estudiante y grupo: Sofía | Grupo 4
+Proyecto de origen: https://github.com/julio7879/Proyecto-Java-Grupo4.git
+Acceso: Reportes → Ver Tiempos Promedio de Reparación
+Clases del examen:
+- `src/main/java/com/carmotors/sgt/model/TiempoPromedioReparacion.java` (creada)
+- `src/main/java/com/carmotors/sgt/model/Servicio.java` (creada)
+- `src/main/java/com/carmotors/sgt/model/RegistroServicioCompletado.java` (creada)
+- `src/main/java/com/carmotors/sgt/dao/ServicioDAO.java` (creada)
+- `src/main/java/com/carmotors/sgt/dao/impl/ServicioDAOImpl.java` (creada)
+- `src/main/java/com/carmotors/sgt/dao/ReporteDAO.java` (ajustada)
+- `src/main/java/com/carmotors/sgt/dao/impl/ReporteDAOImpl.java` (ajustada)
+- `src/main/java/com/carmotors/sgt/service/ReporteService.java` (ajustada)
+- `src/main/java/com/carmotors/sgt/service/ReporteServicio.java` (creada)
+- `src/main/java/com/carmotors/sgt/controller/ReportesController.java` (ajustada)
+- `src/main/java/com/carmotors/sgt/controller/ReporteControlador.java` (creada)
+- `src/main/java/com/carmotors/sgt/view/ReportesView.java` (ajustada)
+- `src/main/java/com/carmotors/sgt/view/VistaReportes.java` (creada)
+- `src/test/java/com/carmotors/sgt/service/ReporteTiemposPromedioTest.java` (creada)
+
