@@ -15,7 +15,8 @@ import java.util.List;
 /**
  * Implementación JDBC para la consulta de estados de servicio.
  */
-public class ServicioEstadoDAOImpl implements ServicioEstadoDAO {
+public class
+ServicioEstadoDAOImpl implements ServicioEstadoDAO {
 
     private final Connection conexionCompartida;
 
