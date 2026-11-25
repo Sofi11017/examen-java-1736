@@ -569,7 +569,9 @@ public class ReporteService {
      * @return lista de {@link TiempoPromedioReparacion} con los promedios calculados
      */
     public List<TiempoPromedioReparacion> calcularTiemposPromedioReparacion() {
-        List<Servicio> servicios = reporteDAO.listarServiciosConFechaEntrega();
+        List<Servicio> servicios = servicioDAO != null
+                ? servicioDAO.listarServiciosConFechaEntrega()
+                : reporteDAO.listarServiciosConFechaEntrega();
         return calcularTiemposPromedioReparacion(servicios);
     }
 

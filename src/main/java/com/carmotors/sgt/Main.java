@@ -110,7 +110,7 @@ public class Main {
                     new ProveedorRepuestoService(proveedorRepuestoDAO, proveedorDAO, repuestoDAO, evaluacionProveedorDAO);
             ProveedorRepuestoController proveedorRepuestoController = new ProveedorRepuestoController(proveedorRepuestoService);
             CatalogoProveedorView catalogoProveedorView =
-                    new CatalogoProvedorView(proveedorRepuestoController, proveedorController, repuestoController);
+                    new CatalogoProveedorView(proveedorRepuestoController, proveedorController, repuestoController);
 
             LoteDAO loteDAO = new LoteDAOImpl();
             LoteService loteService = new LoteService(loteDAO, proveedorDAO, proveedorRepuestoDAO, repuestoDAO, true);
@@ -148,7 +148,8 @@ public class Main {
             menuPrincipal.setSubmenuServicios(new ServiciosMenuView(servicioTipoView, ordenServicioView));
 
             ReporteDAO reporteDAO = new ReporteDAOImpl();
-            ReporteService reporteService = new ReporteService(reporteDAO, tecnicoDAO);
+            com.carmotors.sgt.dao.ServicioDAO servicioDAO = new com.carmotors.sgt.dao.impl.ServicioDAOImpl();
+            ReporteService reporteService = new ReporteService(reporteDAO, tecnicoDAO, servicioDAO);
             ReportesController reportesController = new ReportesController(reporteService);
             menuPrincipal.setSubmenuReportes(new ReportesView(reportesController));
 
