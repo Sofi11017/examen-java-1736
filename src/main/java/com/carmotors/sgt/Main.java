@@ -110,7 +110,7 @@ public class Main {
                     new ProveedorRepuestoService(proveedorRepuestoDAO, proveedorDAO, repuestoDAO, evaluacionProveedorDAO);
             ProveedorRepuestoController proveedorRepuestoController = new ProveedorRepuestoController(proveedorRepuestoService);
             CatalogoProveedorView catalogoProveedorView =
-                    new CatalogoProveedorView(proveedorRepuestoController, proveedorController, repuestoController);
+                    new CatalogoProvedorView(proveedorRepuestoController, proveedorController, repuestoController);
 
             LoteDAO loteDAO = new LoteDAOImpl();
             LoteService loteService = new LoteService(loteDAO, proveedorDAO, proveedorRepuestoDAO, repuestoDAO, true);
